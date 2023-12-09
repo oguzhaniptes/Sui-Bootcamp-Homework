@@ -74,7 +74,6 @@ module devhub::devcard {
     title: vector<u8>,
     img_url: vector<u8>,
     technologies: vector<u8>,
-    portfolio: vector<u8>,
     contact: vector<u8>,
     years_of_experience: u8,
     payment: Coin<SUI>,
