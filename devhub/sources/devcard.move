@@ -25,7 +25,7 @@ module devhub::devcard {
     description: Option<String>,
     years_of_experience: u8,
     technologies: String,
-    portfolio: String,
+    portfolio: Option<String>,
     contact: String,
     open_to_work: bool,
   }
@@ -49,6 +49,12 @@ module devhub::devcard {
     name: String,
     owner: address,
     new_description: String,
+  }
+
+  struct PortfolioUpdated has copy, drop{
+    name: String,
+    owner: address,
+    new_portfolio: String,
   }
 
   fun init(ctx: &mut TxContext) {
@@ -102,7 +108,7 @@ module devhub::devcard {
       description: option::none(),
       years_of_experience,
       technologies: string::utf8(technologies),
-      portfolio: string::utf8(portfolio),
+      portfolio: option::none(),
       contact: string::utf8(contact),
       open_to_work: true,
     };
@@ -126,6 +132,29 @@ module devhub::devcard {
     _ = old_value;
   }
 
+  // public entry fun update_portfolio(devhub: &mut DevHub, id: u64, new_portfolio: vector<u8>, ctx: &mut TxContext){
+  //   let user_card = object_table::borrow_mut(&mut devhub.cards, id);
+  //   assert!(tx_context::sender(ctx) == user_card.owner, NOT_THE_OWNER);
+  //   user_card.portfolio = string::utf8(new_portfolio);
+  // }
+
+  public entry fun update_portfolio(devhub: &mut DevHub, new_portfolio: vector<u8>, id: u64, ctx: &mut TxContext){
+    let user_card = object_table::borrow_mut(&mut devhub.cards, id);
+    assert!(tx_context::sender(ctx) == user_card.owner, NOT_THE_OWNER);
+
+    let old_value = option::swap_or_fill(&mut user_card.portfolio, string::utf8(new_portfolio));
+
+    event::emit(
+      PortfolioUpdated{
+        name: user_card.name,
+        owner: user_card.owner,
+        new_portfolio: string::utf8(new_portfolio),
+      }
+    );
+
+    _ = old_value;
+  }
+
   public entry fun deactive_card(devhub: &mut DevHub, id: u64, ctx: &mut TxContext){
     let user_card = object_table::borrow_mut(&mut devhub.cards, id);
     assert!(tx_context::sender(ctx) == user_card.owner, NOT_THE_OWNER);
@@ -140,7 +169,7 @@ module devhub::devcard {
     Option<String>,
     u8,
     String,
-    String,
+    Option<String>,
     String,
     bool,
   ){
