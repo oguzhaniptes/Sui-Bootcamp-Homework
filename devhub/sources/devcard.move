@@ -14,7 +14,7 @@ module devhub::devcard {
 
   const NOT_THE_OWNER: u64 = 0;
   const INSUFFICENT_FUNDS: u64 = 1;
-  const MIN_CARD_COST: u64 = 2;
+  const MIN_CARD_COST: u64 = 1;
 
   struct DevCard has key, store{
     id: UID,
@@ -58,7 +58,6 @@ module devhub::devcard {
   }
 
   fun init(ctx: &mut TxContext) {
-
     transfer::share_object(
       DevHub{
         id: object::new(ctx),
@@ -73,9 +72,9 @@ module devhub::devcard {
     name: vector<u8>,
     title: vector<u8>,
     img_url: vector<u8>,
+    years_of_experience: u8,
     technologies: vector<u8>,
     contact: vector<u8>,
-    years_of_experience: u8,
     payment: Coin<SUI>,
     devhub: &mut DevHub,
     ctx: &mut TxContext,
@@ -104,8 +103,8 @@ module devhub::devcard {
       owner: tx_context::sender(ctx),
       title: string::utf8(title),
       img_url: url::new_unsafe_from_bytes(img_url),
-      description: option::none(),
       years_of_experience,
+      description: option::none(),
       technologies: string::utf8(technologies),
       portfolio: option::none(),
       contact: string::utf8(contact),
